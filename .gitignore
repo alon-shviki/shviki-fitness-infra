@@ -1,0 +1,9 @@
+# ============================================================
+# .gitignore
+# Summary:
+# Excludes Terraform state files and local build artifacts.
+# ============================================================
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate*
+*.tfplan

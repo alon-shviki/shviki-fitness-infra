@@ -1,0 +1,4 @@
+bucket  = "shviki-fitness-prod-tfstate"
+key     = "prod/terraform.tfstate"
+region  = "eu-west-1"
+encrypt = true
