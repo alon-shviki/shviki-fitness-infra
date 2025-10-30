@@ -1,35 +1,47 @@
 # ============================================================
-# iam.tf
+# EBS CSI Driver IRSA
 # Summary:
-# Creates IAM roles and policies for EKS add-ons (Cluster Autoscaler).
-# Demonstrates IRSA pattern via OIDC provider trust.
+# Creates IAM role for the Amazon EBS CSI Driver to manage EBS volumes.
 # ============================================================
-module "cluster_autoscaler_irsa" {
+
+module "ebs_csi_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "~> 5.46.0"
 
   create_role  = true
-  role_name    = "${local.environment}-cluster-autoscaler"
+  role_name    = "${local.environment}-ebs-csi-driver"
   provider_url = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
 
-  role_policy_arns              = [aws_iam_policy.cluster_autoscaler.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:cluster-autoscaler"]
+  role_policy_arns              = [aws_iam_policy.ebs_csi_policy.arn]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
 }
 
-resource "aws_iam_policy" "cluster_autoscaler" {
-  name        = "${local.environment}-cluster-autoscaler-policy"
-  description = "EKS Cluster Autoscaler permissions"
+resource "aws_iam_policy" "ebs_csi_policy" {
+  name        = "${local.environment}-ebs-csi-policy"
+  description = "EKS EBS CSI driver permissions"
   policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Action = [
-        "autoscaling:Describe*",
-        "autoscaling:SetDesiredCapacity",
-        "autoscaling:TerminateInstanceInAutoScalingGroup",
-        "ec2:DescribeLaunchTemplateVersions"
-      ],
-      Resource = "*"
-    }]
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:CreateSnapshot",
+          "ec2:AttachVolume",
+          "ec2:DetachVolume",
+          "ec2:ModifyVolume",
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeInstances",
+          "ec2:DescribeSnapshots",
+          "ec2:DescribeTags",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeVolumesModifications",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
+          "ec2:CreateVolume",
+          "ec2:DeleteVolume"
+        ],
+        Resource = "*"
+      }
+    ]
   })
 }

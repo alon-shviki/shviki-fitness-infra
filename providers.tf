@@ -2,48 +2,66 @@
 # providers.tf
 # Summary:
 # Defines Terraform version, required providers (AWS, Kubernetes, Helm)
-# and configures them to connect dynamically to the EKS cluster outputs.
+# and configures them dynamically for the EKS cluster.
 # ============================================================
 
 terraform {
-  required_version = ">= 1.9.0"
+  required_version = ">= 1.6.0"
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      # Allow v6 (and future 6.x) to satisfy modules that require >=6.15
-      version = ">= 6.15.0, < 7.0.0"
+      version = ">= 4.0.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.30"
+      version = "~> 2.29"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.11"
+      version = "~> 2.12"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = ">= 4.0.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.9.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.0.0"
+    }
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = ">= 2.0.0"
     }
   }
 }
 
-# --- AWS provider (reads region from var.region) ---
+# --- AWS provider ---
 provider "aws" {
-  region = var.region
+  region  = "eu-west-1"
+  profile = "default"
 }
 
-# --- EKS auth token for Kubernetes/Helm providers ---
-# (uses EKS outputs provided by module "eks" after creation)
+# --- Get EKS cluster authentication data ---
+# This waits until the EKS cluster exists, then provides an auth token.
 data "aws_eks_cluster_auth" "this" {
   name = module.eks.cluster_name
 }
 
-# --- Kubernetes provider (talks to the EKS API server) ---
+# --- Kubernetes provider ---
+# Uses EKS outputs to talk to the API server securely.
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
   token                  = data.aws_eks_cluster_auth.this.token
 }
 
-# --- Helm provider (reuses same k8s connection) ---
+# --- Helm provider ---
+# Shares the same connection settings as Kubernetes.
 provider "helm" {
   kubernetes {
     host                   = module.eks.cluster_endpoint
