@@ -2,7 +2,9 @@
 # argocd.tf
 # Summary:
 # Installs Argo CD in the EKS cluster using the Helm provider.
+# No GitOps bootstrap yet (private repo)
 # ============================================================
+
 resource "helm_release" "argocd" {
   name       = "argocd"
   namespace  = "argocd"

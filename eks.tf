@@ -12,7 +12,7 @@ module "eks" {
   # ------------------------------------------------------------
   # Basic configuration
   # ------------------------------------------------------------
-  name               = "${local.name_prefix}-eks"
+  name               = local.eksname
   kubernetes_version = var.eks_version
 
   # Networking
@@ -51,6 +51,12 @@ module "eks" {
       desired_size   = 2
       min_size       = 1
       max_size       = 4
+
+      # ✅ REQUIRED for Cluster Autoscaler
+      tags = {
+        "k8s.io/cluster-autoscaler/enabled"          = "true"
+        "k8s.io/cluster-autoscaler/${local.eksname}" = "owned"
+      }
     }
   }
 

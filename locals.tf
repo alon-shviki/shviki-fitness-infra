@@ -8,6 +8,7 @@ locals {
   environment = var.environment
   region      = var.region
   name_prefix = "${local.project}-${local.environment}"
+  eksname     = "${local.name_prefix}-eks"
 
   tags = {
     Project     = local.project
