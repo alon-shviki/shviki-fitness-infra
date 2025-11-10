@@ -31,5 +31,6 @@ variable "eks_version" {
 
 variable "eks_node_sizes" {
   type    = list(string)
-  default = ["t3.small"]
+  default = ["t3a.medium"]
 }
+

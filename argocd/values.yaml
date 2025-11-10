@@ -1,0 +1,49 @@
+# ============================================================
+# Node placement for Argo CD system components
+# Ensures Argo CD always runs on system nodes only
+# ============================================================
+
+global:
+  nodeSelector:
+    role: system
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "system"
+      effect: "NoSchedule"
+
+controller:
+  nodeSelector:
+    role: system
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "system"
+      effect: "NoSchedule"
+
+server:
+  nodeSelector:
+    role: system
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "system"
+      effect: "NoSchedule"
+
+repoServer:
+  nodeSelector:
+    role: system
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "system"
+      effect: "NoSchedule"
+
+applicationSet:
+  nodeSelector:
+    role: system
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "system"
+      effect: "NoSchedule"
