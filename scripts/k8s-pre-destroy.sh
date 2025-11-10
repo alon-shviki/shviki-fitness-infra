@@ -27,6 +27,6 @@ fi
 }
 
 echo "⏳ Waiting 60 seconds for AWS LoadBalancers to fully terminate..."
-sleep 60
+sleep 30
 
 echo "✅ Kubernetes LoadBalancer cleanup complete!"
