@@ -1,3 +1,14 @@
+###############################################################
+# Summary: Secret Variable Declarations
+# Description:
+# This file declares all sensitive variables used by the Terraform
+# configuration. The actual values for these variables are
+# provided in the 'secrets.auto.tfvars' file, which is git-ignored.
+#
+# Setting 'sensitive = true' prevents Terraform from printing these
+# values in plans or logs, enhancing security.
+###############################################################
+
 variable "mysql_root_password" {
   type      = string
   sensitive = true

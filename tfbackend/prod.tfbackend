@@ -1,4 +1,10 @@
-bucket  = "shviki-fitness-prod-tfstate"
-key     = "prod/terraform.tfstate"
-region  = "eu-west-1"
-encrypt = true
+# Summary: Terraform Remote Backend Configuration
+# Description:
+# Defines the S3 backend used to store the Terraform state file for the production
+# ShvikiFitness infrastructure. Ensures consistent and centralized state management
+# across deployments.
+
+bucket  = "shviki-fitness-prod-tfstate"   # S3 bucket storing the Terraform state
+key     = "prod/terraform.tfstate"        # Path to the state file inside the bucket
+region  = "eu-west-1"                     # AWS region hosting the S3 backend
+encrypt = true                            # Enable server-side encryption for state

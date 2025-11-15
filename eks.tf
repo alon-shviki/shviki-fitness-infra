@@ -1,8 +1,12 @@
 # ============================================================
-# eks.tf
 # Summary:
-# Creates the Amazon EKS cluster with managed node groups and addons.
-# Includes AWS EBS CSI driver (IRSA-enabled) for persistent volumes.
+# Defines and deploys the Amazon EKS cluster including networking,
+# managed node groups, and core Kubernetes addons.
+# Description:
+# This configuration provisions the EKS control plane, system and
+# workload node groups, and integrates required components such as
+# the EBS CSI driver via IRSA. Node groups are labeled and tainted
+# for clear workload separation.
 # ============================================================
 
 module "eks" {
@@ -15,12 +19,12 @@ module "eks" {
   name               = local.eksname
   kubernetes_version = var.eks_version
 
-  # Networking
+  # Networking configuration
   vpc_id                   = module.vpc.vpc_id
   subnet_ids               = module.vpc.private_subnets
   control_plane_subnet_ids = module.vpc.public_subnets
 
-  # API access & permissions
+  # API access settings
   enable_cluster_creator_admin_permissions = true
   endpoint_public_access                   = true
 
@@ -50,11 +54,12 @@ module "eks" {
       min_size       = 1
       max_size       = 3
 
-      # --- FIX: Converted list to map ---
+      # Additional IAM permissions for EBS CSI driver
       iam_role_additional_policies = {
         EBSCSIPolicy = aws_iam_policy.ebs_csi_policy.arn
       }
 
+      # Scheduling constraints
       labels = {
         role = "system"
       }
@@ -67,6 +72,7 @@ module "eks" {
         }
       }
 
+      # Required for Cluster Autoscaler
       tags = {
         "k8s.io/cluster-autoscaler/enabled"          = "true"
         "k8s.io/cluster-autoscaler/${local.eksname}" = "owned"
@@ -80,15 +86,17 @@ module "eks" {
       min_size       = 1
       max_size       = 5
 
-      # --- FIX: Converted list to map ---
+      # Additional IAM permissions for EBS CSI driver
       iam_role_additional_policies = {
         EBSCSIPolicy = aws_iam_policy.ebs_csi_policy.arn
       }
-      
+
+      # Scheduling labels
       labels = {
         role = "workload"
       }
 
+      # Required for Cluster Autoscaler
       tags = {
         "k8s.io/cluster-autoscaler/enabled"          = "true"
         "k8s.io/cluster-autoscaler/${local.eksname}" = "owned"

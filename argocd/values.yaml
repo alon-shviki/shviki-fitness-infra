@@ -1,49 +1,65 @@
-# ============================================================
-# Node placement for Argo CD system components
-# Ensures Argo CD always runs on system nodes only
-# ============================================================
+# Summary: Node Placement Configuration for Argo CD Components
+# Description:
+# Forces all Argo CD system workloads—including controller, server,
+# repo-server, and ApplicationSet controller—to run exclusively on
+# system-designated nodes using nodeSelector + tolerations.
 
+# ============================================================
+# Global Node Placement (applies to all Argo CD components)
+# ============================================================
 global:
   nodeSelector:
-    role: system
+    role: system # Selects nodes with the label "role: system"
   tolerations:
-    - key: "dedicated"
-      operator: "Equal"
-      value: "system"
-      effect: "NoSchedule"
+    - key: "dedicated"           # The key of the taint to tolerate
+      operator: "Equal"          # The toleration operator
+      value: "system"            # The value of the taint to tolerate
+      effect: "NoSchedule"       # Tolerates the "NoSchedule" taint effect
 
+# ============================================================
+# Argo CD Controller Placement
+# ============================================================
 controller:
   nodeSelector:
-    role: system
+    role: system # Selects nodes with the label "role: system"
   tolerations:
-    - key: "dedicated"
-      operator: "Equal"
-      value: "system"
-      effect: "NoSchedule"
+    - key: "dedicated"           # The key of the taint to tolerate
+      operator: "Equal"          # The toleration operator
+      value: "system"            # The value of the taint to tolerate
+      effect: "NoSchedule"       # Tolerates the "NoSchedule" taint effect
 
+# ============================================================
+# Argo CD API Server Placement
+# ============================================================
 server:
   nodeSelector:
-    role: system
+    role: system # Selects nodes with the label "role: system"
   tolerations:
-    - key: "dedicated"
-      operator: "Equal"
-      value: "system"
-      effect: "NoSchedule"
+    - key: "dedicated"           # The key of the taint to tolerate
+      operator: "Equal"          # The toleration operator
+      value: "system"            # The value of the taint to tolerate
+      effect: "NoSchedule"       # Tolerates the "NoSchedule" taint effect
 
+# ============================================================
+# Argo CD Repo Server Placement
+# ============================================================
 repoServer:
   nodeSelector:
-    role: system
+    role: system # Selects nodes with the label "role: system"
   tolerations:
-    - key: "dedicated"
-      operator: "Equal"
-      value: "system"
-      effect: "NoSchedule"
+    - key: "dedicated"           # The key of the taint to tolerate
+      operator: "Equal"          # The toleration operator
+      value: "system"            # The value of the taint to tolerate
+      effect: "NoSchedule"       # Tolerates the "NoSchedule" taint effect
 
+# ============================================================
+# Argo CD ApplicationSet Controller Placement
+# ============================================================
 applicationSet:
   nodeSelector:
-    role: system
+    role: system # Selects nodes with the label "role: system"
   tolerations:
-    - key: "dedicated"
-      operator: "Equal"
-      value: "system"
-      effect: "NoSchedule"
+    - key: "dedicated"           # The key of the taint to tolerate
+      operator: "Equal"          # The toleration operator
+      value: "system"            # The value of the taint to tolerate
+      effect: "NoSchedule"       # Tolerates the "NoSchedule" taint effect
