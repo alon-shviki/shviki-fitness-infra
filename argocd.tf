@@ -36,6 +36,11 @@ resource "helm_release" "argocd" {
   timeout = 900
   wait    = true
 
+  set {
+    name  = "repoServer.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.shviki_fitness_irsa.iam_role_arn 
+  }
+
   depends_on = [
     module.eks,
     kubernetes_namespace.argocd

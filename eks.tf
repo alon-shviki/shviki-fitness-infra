@@ -109,3 +109,13 @@ module "eks" {
   # ------------------------------------------------------------
   tags = local.tags
 }
+
+resource "null_resource" "update_kubeconfig" {
+  # This ensures the command only runs AFTER the EKS cluster is created
+  depends_on = [module.eks]
+
+  provisioner "local-exec" {
+    # This runs the command on your machine
+    command = "aws eks update-kubeconfig --name ${local.eksname} --region ${local.region}"
+  }
+}

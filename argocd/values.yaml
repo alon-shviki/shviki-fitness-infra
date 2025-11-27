@@ -52,6 +52,7 @@ repoServer:
       value: "system"            # The value of the taint to tolerate
       effect: "NoSchedule"       # Tolerates the "NoSchedule" taint effect
 
+
 # ============================================================
 # Argo CD ApplicationSet Controller Placement
 # ============================================================

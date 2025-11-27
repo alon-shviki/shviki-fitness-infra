@@ -289,28 +289,64 @@ module "shviki_fitness_irsa" {
   role_policy_arns = [aws_iam_policy.external_secrets_policy.arn] # Attaches the *same* shared secrets policy
   oidc_fully_qualified_subjects = [
     # The K8s Service Account (in the 'sh' namespace) that can assume this role
-    "system:serviceaccount:sh:shviki-fitness-sa"
+    "system:serviceaccount:sh:shviki-fitness-sa-v2"
   ]
 }
 
-###############################################################
-# Summary: Kubernetes Service Account for ShvikiFitness Application
-# Description:
-# Creates the 'shviki-fitness-sa' Service Account within the
-# 'sh' namespace and annotates it with its IAM role ARN.
-# The Flask pod will use this SA.
-###############################################################
-resource "kubernetes_service_account" "shviki_fitness_sa" {
+# ============================================================
+# resource: kubernetes_config_map.shviki_irsa_config
+# Summary:
+# Exposes the IRSA IAM Role ARN for the ShvikiFitness app to
+# the cluster via a ConfigMap in the 'argocd' namespace.
+# Helm (in the app repo) will read this value dynamically,
+# so the AWS account ID never appears in Git.
+# ============================================================
+
+resource "kubernetes_config_map" "shviki_irsa_config" {
   metadata {
-    name      = "shviki-fitness-sa" # Name of the app's Service Account
-    namespace = "sh"                # The namespace where the app runs
-    annotations = {
-      # Links this K8s SA to the app's AWS IAM role
-      "eks.amazonaws.com/role-arn" = module.shviki_fitness_irsa.iam_role_arn
+    name      = "shviki-irsa-config"
+    namespace = "argocd"
+
+    labels = {
+      app       = "shviki-fitness"
+      component = "irsa-config"
     }
   }
+
+  data = {
+    # IAM role ARN created by the shviki_fitness_irsa module
+    iam_role_arn = module.shviki_fitness_irsa.iam_role_arn
+  }
+
   depends_on = [
     module.eks,
     module.shviki_fitness_irsa
   ]
 }
+
+resource "kubernetes_service_account" "shviki_fitness" {
+  metadata {
+    name      = "shviki-fitness-sa-v2"
+    namespace = "sh"
+
+    annotations = {
+      "eks.amazonaws.com/role-arn" = module.shviki_fitness_irsa.iam_role_arn
+    }
+  }
+
+  depends_on = [
+    module.shviki_fitness_irsa,
+    module.eks,
+    kubernetes_namespace.sh
+  ]
+}
+
+resource "kubernetes_namespace" "sh" {
+  metadata {
+    name = "sh"
+  }
+
+  depends_on = [module.eks]
+}
+  
+
